@@ -1,0 +1,14 @@
+replicaCount: 1
+
+image:
+  repository: tobiaswaslowski/mood-tracker
+  tag: latest
+  pullPolicy: IfNotPresent
+
+env:
+  TELEGRAM_TOKEN: ""
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: []
