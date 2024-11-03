@@ -20,7 +20,7 @@ resource "helm_release" "arc" {
 }
 
 resource "helm_release" "arc_runner" {
-  for_each = toset(local.github_projects)
+  for_each         = toset(local.github_projects)
   name             = "${split("/", each.value)[1]}-arc"
   repository       = "oci://ghcr.io/actions/actions-runner-controller-charts"
   chart            = "gha-runner-scale-set"
@@ -47,43 +47,4 @@ resource "helm_release" "arc_runner" {
     helm_release.arc,
     kubernetes_namespace.arc_runner
   ]
-}
-
-resource "kubernetes_service_account" "runner_service_account" {
-  metadata {
-    name      = "arc-runner-sa"
-    namespace = local.arc_runner_namespace
-  }
-
-  depends_on = [kubernetes_namespace.arc_runner]
-}
-
-resource "kubernetes_cluster_role" "runner_role" {
-  metadata {
-    name = "runner-role"
-  }
-
-  rule {
-    api_groups = ["*"]
-    resources = ["*"]
-    verbs = ["get", "list", "watch", "create", "update", "patch", "delete"]
-  }
-}
-
-resource "kubernetes_cluster_role_binding" "runner_role_binding" {
-  metadata {
-    name = "runner-role-binding"
-  }
-
-  role_ref {
-    api_group = "rbac.authorization.k8s.io"
-    kind      = "ClusterRole"
-    name      = kubernetes_cluster_role.runner_role.metadata[0].name
-  }
-
-  subject {
-    kind      = "ServiceAccount"
-    name      = kubernetes_service_account.runner_service_account.metadata[0].name
-    namespace = kubernetes_service_account.runner_service_account.metadata[0].namespace
-  }
 }
