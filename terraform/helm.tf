@@ -38,11 +38,6 @@ resource "helm_release" "arc_runner" {
     value = "https://github.com/${each.value}"
   }
 
-  set {
-    name  = "template.spec.serviceAccountName"
-    value = kubernetes_service_account.runner_service_account.metadata[0].name
-  }
-
   depends_on = [
     helm_release.arc,
     kubernetes_namespace.arc_runner
