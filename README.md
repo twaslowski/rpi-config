@@ -19,3 +19,9 @@ This will  give you a k3s cluster master node and a token for setting up worker 
 . bootstrap.sh
 bootstrap_worker worker-node-1 <TOKEN>
 ```
+
+## Bootstrap Cluster with Github Actions Runners
+
+Install Terraform following the 
+[official documentation](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli).
+

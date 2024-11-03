@@ -20,7 +20,7 @@ resource "helm_release" "arc" {
 }
 
 resource "helm_release" "arc_runner" {
-  for_each         = toset(local.github_projects)
+  for_each = toset(local.github_projects)
   name             = "${split("/", each.value)[1]}-arc"
   repository       = "oci://ghcr.io/actions/actions-runner-controller-charts"
   chart            = "gha-runner-scale-set"
@@ -36,6 +36,11 @@ resource "helm_release" "arc_runner" {
   set {
     name  = "githubConfigUrl"
     value = "https://github.com/${each.value}"
+  }
+
+  set {
+    name  = "template.spec.serviceAccountName"
+    value = kubernetes_service_account.runner_service_account.metadata[0].name
   }
 
   depends_on = [
