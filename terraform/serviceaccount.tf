@@ -15,7 +15,7 @@ resource "kubernetes_cluster_role" "runner_role" {
   rule {
     api_groups = ["*"]
     resources  = ["*"]
-    verbs      = ["list", "create", "get", "delete", "patch", "update"]
+    verbs      = ["*"]
   }
 }
 
