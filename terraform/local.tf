@@ -1,7 +1,7 @@
 locals {
   github_projects = [
     "twaslowski/open-mood-tracker",
-    "twaslowski/lingolift-core"
+    "twaslowski/grammr"
   ]
 
   arc_version          = "0.9.3"
