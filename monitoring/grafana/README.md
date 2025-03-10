@@ -27,3 +27,7 @@ kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-pass
 
 In order to access Grafana to view your dashboards, you can either port-forward into the service,
 use a LoadBalancer or the Cloudflared tunnel to expose the service to the internet.
+
+## Loki
+
+You can use Loki for logging and configure it as a datasource in Grafana.
