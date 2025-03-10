@@ -31,3 +31,9 @@ use a LoadBalancer or the Cloudflared tunnel to expose the service to the intern
 ## Loki
 
 You can use Loki for logging and configure it as a datasource in Grafana.
+
+Use the modern `loki` Helm chart over the outdated `loki-stack` chart:
+
+```bash
+helm install loki grafana/loki --values loki.values.yaml
+```

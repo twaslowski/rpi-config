@@ -1,72 +1,80 @@
-grafana:
-  enabled: false
-
 loki:
-  persistence:
+  auth_enabled: false
+  commonConfig:
+    replication_factor: 1
+
+  storage:
+    type: filesystem
+  singleBinary:
     enabled: true
-    size: 10Gi
-  resources:
-    limits:
-      cpu: 500m
-      memory: 512Mi
-    requests:
-      cpu: 100m
-      memory: 256Mi
+    persistence:
+      enabled: true
+      accessModes:
+        - ReadWriteOnce
+      size: 10Gi
+      storageClassName: "" # Use default storage class
+      mountPath: /data
+
   config:
-    storage_config:
-      boltdb_shipper:
-        active_index_directory: /data/loki/index
-        cache_location: /data/loki/cache
-        cache_ttl: 24h
-        shared_store: filesystem
-      filesystem:
-        directory: /data/loki/chunks
     schema_config:
       configs:
-        - from: 2020-10-24
-          store: boltdb-shipper
+        - from: "2020-10-24"
+          store: tsdb
           object_store: filesystem
-          schema: v11
+          schema: v13
           index:
-            prefix: index_
+            prefix: loki_index_
             period: 24h
+
+    storage_config:
+      filesystem:
+        directory: /data/loki/chunks
+      tsdb_shipper:
+        active_index_directory: /data/loki/index
+        cache_location: /data/loki/cache
+        shared_store: filesystem
+
+    ingester:
+      lifecycler:
+        ring:
+          kvstore:
+            store: inmemory
+          replication_factor: 1
+
     limits_config:
-      enforce_metric_name: false
-      reject_old_samples: true
-      reject_old_samples_max_age: 168h
       ingestion_rate_mb: 4
-      ingestion_burst_size_mb: 6
+      ingestion_burst_size_mb: 8
+      max_cache_freshness_per_query: "10m"
 
-promtail:
-  enabled: true
-  config:
-    snippets:
-      pipelineStages:
-        - docker: {}
-        - cri: {}
-  resources:
-    limits:
-      cpu: 200m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 64Mi
-  tolerations:
-    - key: node-role.kubernetes.io/master
-      operator: Exists
-      effect: NoSchedule
-    - key: node-role.kubernetes.io/control-plane
-      operator: Exists
-      effect: NoSchedule
+    chunk_store_config:
+      max_look_back_period: 24h
 
-# Disable other components to save resources
-fluent-bit:
+    compactor:
+      working_directory: /data/loki/compactor
+      shared_store: filesystem
+      compaction_interval: 10m
+
+# Disable all non-essential components
+querier:
   enabled: false
-fluentd:
+queryFrontend:
   enabled: false
-filebeat:
+distributor:
   enabled: false
-logstash:
+compactor:
   enabled: false
-prometheus:
+ruler:
   enabled: false
+indexGateway:
+  enabled: false
+gateway:
+  enabled: false
+
+# Resource constraints
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
