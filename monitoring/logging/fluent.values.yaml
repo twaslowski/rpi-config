@@ -1,0 +1,45 @@
+# values.yaml for fluent-bit Helm chart
+namespace: fluent-bit
+
+fullnameOverride: "fluent-bit"
+
+flush: 1
+logLevel: debug
+
+config:
+  inputs: |
+    [INPUT]
+        Name         tail
+        Path         /var/log/containers/*grammr*.log
+        Parser       json
+        Tag          kube.*
+
+  filters: |
+    [FILTER]
+        Name         kubernetes
+        Match        kube.*
+        Merge_Log    On
+        K8S-Logging.Parser  On
+        K8S-Logging.Exclude On
+        Kube_Tag_Prefix  kube.var.log.containers.
+        Annotations      Off
+        Labels           On
+
+    [FILTER]
+        Name         modify
+        Match        kube.*
+        Copy         log message
+        Remove       log
+
+  outputs: |
+    [OUTPUT]
+        name  loki
+        match kube.*
+        host  loki.monitoring.svc.cluster.local
+        labels job=fluent-bit, namespace=$kubernetes['namespace_name'], pod_name=$kubernetes['pod_name'], container_name=$kubernetes['container_name'], app=$kubernetes['labels']['app'], service=$kubernetes['labels']['service']
+        label_keys $kubernetes['labels']['*']
+
+parsers:
+  enabled: true
+  json:
+    enabled: true

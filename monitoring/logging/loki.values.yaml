@@ -1,4 +1,5 @@
 loki:
+  auth_enabled: false
   commonConfig:
     replication_factor: 1
   schemaConfig:
@@ -17,6 +18,11 @@ loki:
     volume_enabled: true
   ruler:
     enable_api: true
+
+# the chunksCache does not work well on Raspberry Pi
+# in any case, the performance benefits it offers likely are not relevant at this scale
+chunksCache:
+  enabled: false
 
 minio:
   enabled: true
