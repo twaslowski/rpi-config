@@ -16,6 +16,13 @@ config:
 
   filters: |
     [FILTER]
+        Name         multiline
+        Match        kube.*
+        Type         parser
+        Parser       java-multiline
+        Key_Content  log
+
+    [FILTER]
         Name         kubernetes
         Match        kube.*
         Merge_Log    On
@@ -34,7 +41,22 @@ config:
         host  loki.monitoring.svc.cluster.local
         labels job=fluent-bit, namespace=$kubernetes['namespace_name'], pod_name=$kubernetes['pod_name'], container_name=$kubernetes['container_name'], app=$kubernetes['labels']['app'], service=$kubernetes['labels']['service']
 
-parsers:
-  enabled: true
-  json:
-    enabled: true
+  parsers: |
+    [PARSER]
+        Name        java
+        Format      regex
+        Regex       ^(?<time>\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2},\d{1,3}) (?<level>[^\s]+) (?<message>.*)
+        Time_Key    time
+        Time_Format %Y-%m-%d %H:%M:%S,%L
+        Time_Keep   On
+    
+    [MULTILINE_PARSER]
+        Name          java-multiline
+        Type          regex
+        Flush_Timeout 1000
+        Rule          "^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2},[0-9]{3}" "start_state" "cont"
+        Rule          "^[^\t]" "cont" "cont"
+        Rule          "^\t" "cont" "cont"
+        Rule          "^[\\s]+at " "cont" "cont"
+        Rule          "^[\\s]+... [0-9]+ more" "cont" "cont"
+        Rule          "^[\\s]*Caused by:" "cont" "cont"
