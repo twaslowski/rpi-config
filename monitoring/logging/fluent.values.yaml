@@ -16,13 +16,6 @@ config:
 
   filters: |
     [FILTER]
-        Name         multiline
-        Match        kube.*
-        Type         parser
-        Parser       java-multiline
-        Key_Content  log
-
-    [FILTER]
         Name         kubernetes
         Match        kube.*
         Merge_Log    On
@@ -34,6 +27,12 @@ config:
         Annotations      Off
         Labels           On
 
+    [FILTER]
+        Name parser
+        Match kube.*
+        Key_Name log
+        Parser java-multiline
+
   outputs: |
     [OUTPUT]
         name  loki
@@ -41,7 +40,7 @@ config:
         host  loki.monitoring.svc.cluster.local
         labels job=fluent-bit, namespace=$kubernetes['namespace_name'], pod_name=$kubernetes['pod_name'], container_name=$kubernetes['container_name'], app=$kubernetes['labels']['app'], service=$kubernetes['labels']['service']
 
-  parsers: |
+  customParsers: |
     [PARSER]
         Name        java
         Format      regex

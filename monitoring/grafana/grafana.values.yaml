@@ -2,3 +2,8 @@ persistence:
   enabled: true
   size: 2G
   type: pvc
+ingress:
+  enabled: true
+  ingressClassName: "cloudflare-tunnel"
+  hosts:
+    - "grafana.twaslowski.com"
