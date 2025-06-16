@@ -15,7 +15,7 @@ helm repo add grafana https://grafana.github.io/helm-charts
 Install the Grafana Helm chart:
 
 ```bash
-helm install grafana grafana/grafana
+helm install grafana grafana/grafana --namespace grafana --create-namespace
 ```
 
 This will install Grafana on your Cluster. Your default username is `admin` and the password is auto-generated.
