@@ -22,7 +22,7 @@ This will install Grafana on your Cluster. Your default username is `admin` and 
 You can retrieve the password by running:
 
 ```bash
-kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+kubectl get secret --namespace grafana grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 ```
 
 In order to access Grafana to view your dashboards, you can either port-forward into the service,
